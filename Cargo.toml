@@ -1,0 +1,9 @@
+[package]
+name = "peer-chat"
+version = "0.1.0"
+authors = ["Henrik Skupin <mail@hskupin.info>"]
+
+[dependencies]
+serde="*"
+serde_json="*"
+serde_derive="*"
