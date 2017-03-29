@@ -22,9 +22,32 @@ static RECEIVER_ADDRESSES: &'static [&'static str] = &[
 
 static broadcast_address: &'static str = "255.255.255.255:54321";
 
-struct message {
+#[derive(Debug, Serialize, Deserialize)]
+struct Message {
     name: String,
-    content: String,
+    content: ContentType,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+enum ContentType{
+    Message(String),
+    Arrived,
+    Annouce,
+}
+
+fn broadcast(send_socket: &UdpSocket, msg: &Message) {
+    let wire_format = serde_json::to_string(&msg).unwrap();
+
+    for addr in RECEIVER_ADDRESSES.iter() {
+        send_socket.send_to(wire_format.as_bytes(),addr);
+    }
+}
+
+fn make_message(content: ContentType) -> Message {
+    Message {
+        name: String::from("Hendrik"),
+        content: content
+    }
 }
 
 fn main() {
@@ -38,11 +61,12 @@ fn main() {
         while true {
             let mut input = String::new();
             match io::stdin().read_line(&mut input) {
-                Ok(n) => {
-                    println!("Sending: {}", input);
-                    for addr in RECEIVER_ADDRESSES.iter() {
-                        send_socket.send_to(input.as_bytes(), addr);
-                    }
+                Ok(_) => {
+                    let msg = Message{
+                        name: String::from("hoodie"),
+                        content: ContentType::Message(input.trim().into())
+                    };
+                    broadcast(&send_socket, &msg);
                 }
                 Err(error) => println!("error: {}", error),
             }
@@ -54,10 +78,22 @@ fn main() {
 
         while true {
             let mut buf = [0; 4096];
-            let (amt, src) = recv_socket.recv_from(&mut buf).unwrap();
+            let (len, src) = recv_socket.recv_from(&mut buf).unwrap();
+            let received = String::from_utf8_lossy(&buf[0..len]);
+            match serde_json::from_str::<Message>(&received) {
+                Ok(msg) => {
+                    match msg.content {
+                        ContentType::Message(text) => println!("{}, {:?}", msg.name, text),
+                        ContentType::Arrived => {
+                            println!("-- {} entered the room", msg.name);
+                        },
+                        _ => println!("unhandled message")
+                    }
+                },
+                Err(e) => println!("bad message format {:?}", e)
+            }
 
 
-            println!("{}: {}", src, String::from_utf8_lossy(&buf));
         }
     });
 
