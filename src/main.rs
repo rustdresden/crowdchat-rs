@@ -7,12 +7,18 @@ use std::net::UdpSocket;
 use std::thread;
 use std::time::Duration;
 
-static recv_address: &'static str = "172.16.1.18:54321";
-static send_address: &'static str = "172.16.1.18:54322";
+static recv_address: &'static str = "192.168.43.154:54321";
+static send_address: &'static str = "192.168.43.154:54322";
 
-static jk_address: &'static str = "172.16.1.1:54321";
-static hoodie_address: &'static str = "172.16.1.187:54321";
-static henrik_address: &'static str = "172.16.1.18:54321";
+
+static RECEIVER_ADDRESSES: &'static [&'static str] = &[
+    "192.168.43.72:54321",
+    "192.168.43.154:54321",
+    "192.168.43.239:54321",
+    "192.168.43.90:54321",
+    "192.168.43.255:54321"
+];
+
 
 static broadcast_address: &'static str = "255.255.255.255:54321";
 
@@ -26,18 +32,17 @@ fn main() {
     let mut send_socket = UdpSocket::bind(send_address).unwrap();
 
     let send_thread = thread::spawn(move || {
-        let mut input = String::new();
 
         send_socket.set_broadcast(true).unwrap();
 
         while true {
+            let mut input = String::new();
             match io::stdin().read_line(&mut input) {
                 Ok(n) => {
                     println!("Sending: {}", input);
-                    send_socket.send_to(input.as_bytes(), hoodie_address);
-                    send_socket.send_to(input.as_bytes(), jk_address);
-                    send_socket.send_to(input.as_bytes(), henrik_address);
-                    send_socket.send_to(input.as_bytes(), broadcast_address);
+                    for addr in RECEIVER_ADDRESSES.iter() {
+                        send_socket.send_to(input.as_bytes(), addr);
+                    }
                 }
                 Err(error) => println!("error: {}", error),
             }
