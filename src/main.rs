@@ -98,5 +98,6 @@ fn main() {
     });
 
 
+    receive.join().unwrap();
     send_thread.join().unwrap();
 }
