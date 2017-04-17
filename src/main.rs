@@ -7,9 +7,9 @@ use std::net::UdpSocket;
 use std::thread;
 use std::time::Duration;
 
-static recv_address: &'static str = "192.168.43.154:54321";
-static send_address: &'static str = "192.168.43.154:54322";
-
+static recv_address: &'static str = "0.0.0.0:54321";
+static send_address: &'static str = "localhost:54322";
+static server_address: &'static str = "localhost:17424";
 
 static RECEIVER_ADDRESSES: &'static [&'static str] = &[
     "192.168.43.72:54321",
