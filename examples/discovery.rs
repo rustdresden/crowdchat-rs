@@ -3,6 +3,9 @@ extern crate crowdchat;
 use std::io::Write;
 use std::net::TcpListener;
 
+use crowdchat::clients;
+
+
 fn accept_connections(listener: TcpListener) {
     let mut clients = vec!();
     let mut socks = vec!();
