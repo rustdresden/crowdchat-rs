@@ -1,7 +1,7 @@
 [package]
-name = "peer-chat"
+name = "crowdchat"
 version = "0.1.0"
-authors = ["Henrik Skupin <mail@hskupin.info>"]
+authors = ["Henrik Skupin <mail@hskupin.info>", "Martin Unzner <martin.u@posteo.de>"]
 
 [dependencies]
 serde="*"
